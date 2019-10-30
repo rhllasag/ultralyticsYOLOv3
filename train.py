@@ -9,6 +9,9 @@ from models import *
 from utils.datasets import *
 from utils.utils import *
 
+import test
+from sparsity import *
+
 mixed_precision = True
 try:  # Mixed precision training https://github.com/NVIDIA/apex
     from apex import amp
@@ -284,7 +287,7 @@ def train():
                 loss.backward()
 
             # Accumulate gradient for x batches before optimizing
-            if ni % accumulate == 0:
+            if (ni + 1) % accumulate == 0 or (i + 1) == nb:
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -413,6 +416,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
     parser.add_argument('--adam', action='store_true', help='use adam optimizer')
     parser.add_argument('--var', type=float, help='debug variable')
+    parser.add_argument('--s', type=float, default=0.0001)
     opt = parser.parse_args()
     opt.weights = last if opt.resume else opt.weights
     print(opt)
